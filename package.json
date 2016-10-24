@@ -1,0 +1,19 @@
+{
+  "name": "parse_wiktionary",
+  "version": "1.0.0",
+  "description": "",
+  "main": "create_wiki.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "JSONStream": "^1.1.1",
+    "event-stream": "^3.3.2",
+    "fs": "0.0.2",
+    "mongoose": "^4.4.17",
+    "request": "^2.75.0",
+    "xml-stream": "^0.4.5"
+  }
+}
