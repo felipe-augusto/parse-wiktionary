@@ -27,7 +27,14 @@ var possibles = {
   '===Phrase===': -1,
   '===Contraction===': -1,
   '===Conjunction===': -1,
-  '===Article===': -1
+  '===Article===': -1,
+  '===Suffix===': -1,
+  '===Initialism===': -1,
+  '===Proverb===': -1,
+  '===Number===': -1,
+  '===Abbreviation===' : -1,
+  '===Prefix===': -1,
+  '===Prepositional phrase===': -1
 }
 
 function getMatches(string, regex, index, title) {
@@ -38,19 +45,18 @@ function getMatches(string, regex, index, title) {
   };
   var match;
   var finaz = '';
-  var tmp = 100000;
+  var tmp = 10000000;
   // this shows some words that fails to find translations
   // if(!regex.exec(string)) {
   //     console.log(title);
   // }
   while (match = regex.exec(string)) {
-
+    tmp = 10000000;
     for (key in possibles) {
       var pos = match.input.indexOf(key);
       if (pos == -1) {
       } else {
         // existe um tipo de traducao
-
         var diff = match.index - pos;
 
         if(diff > 0 && diff < tmp) {
@@ -76,7 +82,9 @@ function getMatches(string, regex, index, title) {
 }
 
 // check if there are portuguese translations of the word
-var trans_exp = /\|pt\|(.*?)(\||\})/g;
+// new regex -> (t|t\+)\|pt\|(.*?)(\||\})
+// old -> /\|pt\|(.*?)(\||\})/g
+var trans_exp = /t\+\|pt\|(.*?)(\||\})/g;
 
 // check if the word has audio
 var audio_exp = /\{\{audio\|(.*?-us-.*?)\|Audio \(US\)/g;
@@ -105,9 +113,94 @@ xml.on('endElement: page', function(item) {
 			} catch (err) {
 				word.sound = null;
 			}
-			console.log(JSON.stringify(word));
+
 		}
-		
+
+		if(word !== undefined && Object.keys(word.translations).length > 0) {
+      console.log(JSON.stringify(word));
+    }
 	};
 
 });
+
+function checkEmptyKeys(word) {
+  if(word && Object.keys(word.translations).length) {
+    if(word.translations['']) {
+      console.log(word);
+    }
+  }
+}
+
+function doTest (word) {
+  var test_array = [
+  'me',
+  'for',
+  'know',
+  'time',
+  'game',
+  'know',
+  'data',
+  'time',
+  'an',
+  'library',
+  'the',
+  'change',
+  'as',
+  'jesus',
+  'november'
+  ]
+
+  if(word && test_array.includes(word.word)) {
+    console.log(JSON.stringify(word)); 
+  } 
+}
+
+
+// https://tc39.github.io/ecma262/#sec-array.prototype.includes
+if (!Array.prototype.includes) {
+  Object.defineProperty(Array.prototype, 'includes', {
+    value: function(searchElement, fromIndex) {
+
+      // 1. Let O be ? ToObject(this value).
+      if (this == null) {
+        throw new TypeError('"this" is null or not defined');
+      }
+
+      var o = Object(this);
+
+      // 2. Let len be ? ToLength(? Get(O, "length")).
+      var len = o.length >>> 0;
+
+      // 3. If len is 0, return false.
+      if (len === 0) {
+        return false;
+      }
+
+      // 4. Let n be ? ToInteger(fromIndex).
+      //    (If fromIndex is undefined, this step produces the value 0.)
+      var n = fromIndex | 0;
+
+      // 5. If n ≥ 0, then
+      //  a. Let k be n.
+      // 6. Else n < 0,
+      //  a. Let k be len + n.
+      //  b. If k < 0, let k be 0.
+      var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+      // 7. Repeat, while k < len
+      while (k < len) {
+        // a. Let elementK be the result of ? Get(O, ! ToString(k)).
+        // b. If SameValueZero(searchElement, elementK) is true, return true.
+        // c. Increase k by 1.
+        // NOTE: === provides the correct "SameValueZero" comparison needed here.
+        if (o[k] === searchElement) {
+          return true;
+        }
+        k++;
+      }
+
+      // 8. Return false
+      return false;
+    }
+  });
+}
